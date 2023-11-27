@@ -1,0 +1,1 @@
+INSERT INTO error1 (company_id, short_code, long_code, language_id) VALUES ('1', 'GL001', 'Access Failed', '1'), ('1', 'GL002', 'Company Code Invalid', '1'), ('1', 'GL003', 'Failed to Get Policy', '1');
