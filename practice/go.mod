@@ -1,3 +1,3 @@
-module go/practice
+module practice
 
 go 1.20
