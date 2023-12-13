@@ -34,31 +34,21 @@ type Client struct {
 }
 
 func main() {
-	
+	// Database setup
 	dsn := "root:root@tcp(127.0.0.1:3306)/policy?charset=utf8mb4&parseTime=True&loc=Local"
-
-	
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	
-	// db.AutoMigrate(&Client{})
-
-	
+	// Router setup
 	router := gin.Default()
-
-	
 	router.GET("/clients", getClientsHandler)
 	router.POST("/clients", createClient)
-	router.GET("/generate-pdf-client", generatePDFClientHandler) // New endpoint for generating a PDF client
-
-	
+	router.GET("/generate-pdf-client", generatePDFClientHandler)
 	port := 8080
 	router.Run(fmt.Sprintf(":%d", port))
 }
-
 
 func getClientsHandler(c *gin.Context) {
 	clients, err := getClients(c)
@@ -70,7 +60,6 @@ func getClientsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, clients)
 }
 
-
 func createClient(c *gin.Context) {
 	var input Client
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -80,7 +69,6 @@ func createClient(c *gin.Context) {
 	db.Create(&input)
 	c.JSON(http.StatusOK, input)
 }
-
 
 func generatePDFClientHandler(c *gin.Context) {
 	clients, err := getClients(c)
@@ -96,15 +84,64 @@ func generatePDFClientHandler(c *gin.Context) {
 	pdf.Ln(10)
 	pdf.SetFont("Arial", "", 12)
 
+	// Initialize column widths
+	colWidths := make([]float64, 6)
+
+	// Add table headers
+	pdf.SetFillColor(200, 220, 255)
+	headers := []string{"Name", "Email", "Salutation", "Language", "Gender", "ClientDob"}
+	for i, header := range headers {
+		maxWidth := pdf.GetStringWidth(header) + 6 // Add padding
+		for _, client := range clients {
+			fieldValue := ""
+			switch i {
+			case 0:
+				fieldValue = fmt.Sprintf("%s %s", client.ClientShortName, client.ClientLongName)
+			case 1:
+				fieldValue = client.ClientEmail
+			case 2:
+				fieldValue = client.Salutation
+			case 3:
+				fieldValue = client.Language
+			case 4:
+				fieldValue = client.Gender
+			case 5:
+				fieldValue = client.ClientDob
+			}
+
+			textWidth := pdf.GetStringWidth(fieldValue) + 6 // Add padding
+			if textWidth > maxWidth {
+				maxWidth = textWidth
+			}
+		}
+		colWidths[i] = maxWidth
+		pdf.CellFormat(maxWidth, 7, header, "1", 0, "C", true, 0, "")
+	}
+	pdf.Ln(7)
+
+	// Add table rows
+	pdf.SetFillColor(255, 255, 255)
 	for _, client := range clients {
-		pdf.Cell(0, 10, fmt.Sprintf("Name: %s %s", client.ClientShortName,client.ClientLongName))
-		pdf.Ln(8)
-		pdf.MultiCell(0, 10, fmt.Sprintf("ClientEmail: %s", client.ClientEmail), "TLR", "", false)
-		pdf.MultiCell(0, 10, fmt.Sprintf("Salutation: %s", client.Salutation), "TLR", "", false)
-		pdf.MultiCell(0, 10, fmt.Sprintf("Language: %s", client.Language), "TLR", "", false)
-		pdf.MultiCell(0, 10, fmt.Sprintf("Gender: %s", client.Gender), "TLR", "", false)
-		pdf.MultiCell(0, 10, fmt.Sprintf("ClientDob: %s", client.ClientDob), "TLR", "", false)
-		pdf.Ln(8)
+		for i := range headers {
+			fieldValue := ""
+			switch i {
+			case 0:
+				fieldValue = fmt.Sprintf("%s %s", client.ClientShortName, client.ClientLongName)
+			case 1:
+				fieldValue = client.ClientEmail
+			case 2:
+				fieldValue = client.Salutation
+			case 3:
+				fieldValue = client.Language
+			case 4:
+				fieldValue = client.Gender
+			case 5:
+				fieldValue = client.ClientDob
+			}
+
+			pdf.CellFormat(colWidths[i], 10, fieldValue, "1", 0, "L", false, 0, "")
+		}
+		pdf.Ln(10)
 	}
 
 	c.Header("Content-Type", "application/pdf")
@@ -113,6 +150,8 @@ func generatePDFClientHandler(c *gin.Context) {
 		log.Fatal(err)
 	}
 }
+
+
 
 
 func getClients(c *gin.Context) ([]Client, error) {
