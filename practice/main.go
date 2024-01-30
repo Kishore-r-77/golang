@@ -1,18 +1,28 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
-func test(num *int) {
-	*num = 7
-}
 func main() {
 
-	const name string = "Kishore"
-	var num int = 5
+	type fiance struct {
+		FianceName string
+	}
 
-	fmt.Println(name)
-	fmt.Printf("The number is %.2f\n", 10.0)
-	test(&num)
-	fmt.Println(num)
+	type Person struct {
+		Name    string
+		Age     int
+		Company string
+		Ash     fiance
+	}
+
+	kishore := Person{}
+	kishore.Name = "Kishore"
+	kishore.Age = 27
+	kishore.Company = "Netflix"
+	kishore.Ash.FianceName = "Aswathy"
+
+	fmt.Println(kishore.Ash.FianceName)
 
 }
