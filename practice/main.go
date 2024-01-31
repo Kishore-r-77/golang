@@ -3,18 +3,14 @@ package main
 import "fmt"
 
 func main() {
-	var name string = "Aswathy"
+	const name string = "Kishore"
+	fmt.Println("Hello", name)
+	var fruits []string
+	fruits = append(fruits, "Mango")
+	fruits = append(fruits, "Apple")
+	fruits = append(fruits, "Orange")
+	fruits = append(fruits, "Grapes")
+	fruits = append(fruits, "Strawberry")
 
-	switch name {
-	case "Kishore":
-		{
-			fmt.Println("Hello Kishore")
-		}
-	case "Aswathy":
-		fmt.Println("Hello Aswathy")
-		fmt.Println("Hello Goddess")
-	default:
-		fmt.Println("Select a Name")
-	}
-
+	fmt.Println(fruits)
 }
