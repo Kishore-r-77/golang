@@ -1,16 +1,44 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
+
+type Person struct {
+	name string
+	age  int
+}
+
+type Animal struct {
+	name string
+	age  int
+}
+
+type Display interface {
+	makeNoise()
+}
+
+func (person Person) makeNoise() {
+	fmt.Println("Hey Yooooo")
+}
+func (animal Animal) makeNoise() {
+	fmt.Println("Roarrrrr")
+}
+
+func display(d Display) {
+	d.makeNoise()
+}
 
 func main() {
-	const name string = "Kishore"
-	fmt.Println("Hello", name)
-	var fruits []string
-	fruits = append(fruits, "Mango")
-	fruits = append(fruits, "Apple")
-	fruits = append(fruits, "Orange")
-	fruits = append(fruits, "Grapes")
-	fruits = append(fruits, "Strawberry")
 
-	fmt.Println(fruits)
+	kishore := Person{}
+	kishore.name = "Kishore"
+	kishore.age = 27
+
+	tiger := Animal{}
+	tiger.name = "Tiger"
+	tiger.age = 20
+
+	display(kishore)
+
 }
